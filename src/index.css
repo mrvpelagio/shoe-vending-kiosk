@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.typing-dots::after {
+  content: '...';
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  animation: typingDots 1.2s steps(4, end) infinite;
+  width: 0;
+}
+
+@keyframes typingDots {
+  0% {
+    width: 0ch;
+  }
+  33% {
+    width: 1ch;
+  }
+  66% {
+    width: 2ch;
+  }
+  100% {
+    width: 3ch;
+  }
+}
+

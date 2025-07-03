@@ -1,156 +1,215 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-const shoeTypes = ["Sneakers", "Leather", "Suede", "Heels"];
-const cleanTypes = [
-  { name: "Basic Clean", time: 5, price: 100 },
-  { name: "Deep Clean", time: 10, price: 180 },
-  { name: "Deodorize", time: 3, price: 50 },
-  { name: "Water-repellent", time: 7, price: 120 }
+const shoeTypes = [
+  { name: "Rubber Shoes", image: "/images/rubbershoes.jpg" },
+  { name: "Leather", image: "/images/leather.jpg" },
+  { name: "Canvas", image: "/images/canvas.jpg" },
+  { name: "Sneakers", image: "/images/sneakers.jpg" },
+  { name: "Heels", image: "/images/heels.jpg" },
+  
 ];
-const paymentOptions = ["GCash", "Credit Card", "Pay on Pickup"];
 
-export default function ShoeCleaningKiosk() {
-  const [shoeType, setShoeType] = useState(null);
-  const [cleanType, setCleanType] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState(null);
-  const [progress, setProgress] = useState(0);
-  const [isCleaning, setIsCleaning] = useState(false);
+const paymentMethods = ["GCash", "Card", "Cash"];
 
-  const startCleaning = () => {
-    if (!shoeType || !cleanType || !paymentMethod) {
-      alert("Please select shoe type, cleaning type, and payment method.");
-      return;
+
+const services = [
+  { id: 1, name: "Basic Clean", price: "₱150" },
+  { id: 2, name: "Deep Clean", price: "₱200" },
+  { id: 3, name: "Clean + Repaint", price: "₱250" },
+  { id: 4, name: "Deodorize Only", price: "₱100" },
+];
+
+const simulationSteps = [
+  "Please insert your shoe into the kiosk...",
+  "Shoe detected.",
+  "Cleaning in progress",
+  "Cleaning complete! ✅",
+];
+
+export default function ShoeCleaningVendingMachine() {
+  const [selectedShoe, setSelectedShoe] = useState(null);
+  const [selectedService, setSelectedService] = useState(null);
+  const [currentStep, setCurrentStep] = useState(null);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [confirmed, setConfirmed] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState(null);
+
+
+
+  const isReady = selectedShoe && selectedService && selectedPayment;
+
+
+  useEffect(() => {
+    if (confirmed && stepIndex < simulationSteps.length) {
+      const timeout = setTimeout(() => {
+        setCurrentStep(simulationSteps[stepIndex]);
+        setStepIndex((prev) => prev + 1);
+      }, 1500);
+      return () => clearTimeout(timeout);
     }
-    setIsCleaning(true);
-    let count = 0;
-    const interval = setInterval(() => {
-      count += 10;
-      setProgress(count);
-      if (count >= 100) {
-        clearInterval(interval);
-        alert("Cleaning complete! Please retrieve your shoe.");
-        setProgress(0);
-        setIsCleaning(false);
-        setPaymentMethod(null);
-        setCleanType(null);
-        setShoeType(null);
-      }
-    }, cleanType.time * 10);
+  }, [stepIndex, confirmed]);
+
+  const startSimulation = () => {
+    setConfirmed(true);
+    setCurrentStep(simulationSteps[0]);
+    setStepIndex(1);
   };
 
+  const reset = () => {
+    setConfirmed(false);
+    setCurrentStep(null);
+    setStepIndex(0);
+    setSelectedShoe(null);
+    setSelectedService(null);
+    setSelectedPayment(null);
+  };
+
+
+
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
-      <div className="bg-white w-full max-w-md rounded-lg shadow-lg p-6 space-y-6">
-        <h1 className="text-2xl font-bold text-center text-blue-700">
-          👟 Shoe Cleaning Kiosk
-        </h1>
+    <div className="bg-gray-900 text-white w-[700px] rounded-xl shadow-2xl overflow-hidden border-4 border-blue-300">
+      <div className="bg-blue-600 p-4 text-center font-bold text-lg">
+        Shoe Cleaning Vending Machine
+      </div>
 
-        {/* Shoe Type Selection */}
+      {/* Shoe Type + Service Grid */}
+      <div className="grid grid-cols-2 gap-4 p-4">
+        {/* Shoe Type Selector */}
         <div>
-          <h2 className="font-semibold mb-2">1. Select Shoe Type</h2>
-          <div className="flex flex-wrap gap-2">
-            {shoeTypes.map((type) => (
+          <h2 className="text-md font-semibold mb-2">Select Shoe Type</h2>
+          <div className="space-y-2">
+            {shoeTypes.map((shoe) => (
               <button
-                key={type}
-                onClick={() => {
-                  setShoeType(type);
-                  setCleanType(null);
-                  setPaymentMethod(null);
-                }}
-                className={`px-4 py-2 rounded border ${
-                  shoeType === type
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 hover:bg-blue-100"
+                key={shoe.name}
+                className={`flex items-center gap-3 w-full py-2 px-3 rounded border ${
+                  selectedShoe === shoe.name
+                    ? "bg-yellow-300 text-black border-yellow-400"
+                    : "bg-gray-800 hover:bg-gray-700 border-gray-600"
                 }`}
+                onClick={() => {
+                  setSelectedShoe(shoe.name);
+                  setConfirmed(false);
+                }}
               >
-                {type}
+                <img
+                  src={shoe.image}
+                  alt={shoe.name}
+                  className="w-12 h-12 object-contain rounded bg-white"
+                />
+                <span>{shoe.name}</span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Cleaning Type Selection */}
+        {/* Service Selector */}
         <div>
-          <h2 className="font-semibold mb-2">2. Choose Cleaning Type</h2>
-          <div className="flex flex-wrap gap-2">
-            {cleanTypes.map((type) => (
+          <h2 className="text-md font-semibold mb-2">Select Cleaning Service</h2>
+          <div className="space-y-2">
+            {services.map((svc) => (
               <button
-                key={type.name}
-                onClick={() => {
-                  if (shoeType) setCleanType(type);
-                }}
-                disabled={!shoeType}
-                className={`px-4 py-2 rounded border transition ${
-                  !shoeType
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : cleanType?.name === type.name
-                    ? "bg-green-600 text-white"
-                    : "bg-gray-100 hover:bg-green-100"
+                key={svc.id}
+                className={`w-full py-2 px-3 rounded text-left font-medium border ${
+                  selectedService?.id === svc.id
+                    ? "bg-yellow-300 text-black border-yellow-400"
+                    : "bg-gray-800 hover:bg-gray-700 border-gray-600"
                 }`}
+                onClick={() => {
+                  setSelectedService(svc);
+                  setConfirmed(false);
+                }}
               >
-                {type.name}
+                <div>{svc.name}</div>
+                <div className="text-sm text-gray-300">{svc.price}</div>
               </button>
             ))}
           </div>
-          {!shoeType && (
-            <p className="text-xs text-gray-500 mt-2">
-              Select a shoe type first to unlock cleaning options.
+        </div>
+      </div>
+
+      {/* Payment Method Selector */}
+      <div className="px-4 pb-2">
+        <h2 className="text-md font-semibold mb-2">Select Payment Method</h2>
+        <div className="flex gap-3 justify-center">
+          {paymentMethods.map((method) => (
+            <button
+              key={method}
+              className={`px-4 py-2 rounded font-medium border ${
+                selectedPayment === method
+                  ? "bg-yellow-300 text-black border-yellow-400"
+                  : "bg-gray-800 hover:bg-gray-700 border-gray-600 text-white"
+              }`}
+              onClick={() => {
+                setSelectedPayment(method);
+                setConfirmed(false);
+              }}
+            >
+              {method}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Summary + Simulation */}
+      <div className="bg-gray-800 p-4 border-t border-gray-700 text-center">
+        {!confirmed ? (
+          <>
+            <h2 className="text-lg font-semibold mb-2">Order Summary</h2>
+            {isReady ? (
+              <>
+                <p>
+                  <span className="text-gray-300">Shoe:</span>{" "}
+                  <strong>{selectedShoe}</strong>
+                </p>
+                <p>
+                  <span className="text-gray-300">Service:</span>{" "}
+                  <strong>{selectedService.name}</strong> (
+                  <span className="text-yellow-300">{selectedService.price}</span>)
+                </p>
+                <p>
+                  <span className="text-gray-300">Payment:</span>{" "}
+                  <strong>{selectedPayment || "None"}</strong>
+                </p>
+              </>
+            ) : (
+              <p className="text-gray-400 italic">
+                Please select both a shoe type and service
+              </p>
+            )}
+
+            <button
+              disabled={!isReady}
+              onClick={startSimulation}
+              className={`mt-4 px-6 py-2 rounded font-bold ${
+                isReady
+                  ? "bg-green-500 hover:bg-green-600 text-white"
+                  : "bg-gray-600 text-gray-300 cursor-not-allowed"
+              }`}
+            >
+              Start Cleaning
+            </button>
+          </>
+        ) : (
+          <>
+            <h2 className="text-lg font-semibold mb-2">Machine Status</h2>
+            <p
+              className={`text-yellow-300 text-md ${
+                currentStep.includes("progress") ? "typing-dots" : ""
+              }`}
+            >
+              {currentStep}
             </p>
-          )}
-        </div>
 
-        {/* Summary & Payment Options */}
-        {shoeType && cleanType && (
-          <div className="space-y-4">
-            <div className="p-4 bg-blue-50 rounded-md border text-sm space-y-1">
-              <p><strong>Shoe:</strong> {shoeType}</p>
-              <p><strong>Cleaning:</strong> {cleanType.name}</p>
-              <p><strong>Time:</strong> {cleanType.time} min</p>
-              <p><strong>Price:</strong> ₱{cleanType.price}</p>
-            </div>
-
-            <div>
-              <h2 className="font-semibold mb-2">3. Choose Payment Method</h2>
-              <div className="flex flex-wrap gap-2">
-                {paymentOptions.map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => setPaymentMethod(option)}
-                    className={`px-4 py-2 rounded border ${
-                      paymentMethod === option
-                        ? "bg-purple-600 text-white"
-                        : "bg-gray-100 hover:bg-purple-100"
-                    }`}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Start Button */}
-        <button
-          onClick={startCleaning}
-          disabled={isCleaning || !paymentMethod}
-          className={`w-full py-3 rounded text-white font-bold transition ${
-            isCleaning || !paymentMethod
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-700 hover:bg-blue-800"
-          }`}
-        >
-          {isCleaning ? "Cleaning..." : "Insert Shoe & Start"}
-        </button>
-
-        {/* Progress Bar */}
-        {isCleaning && (
-          <div className="w-full bg-gray-200 h-4 rounded overflow-hidden">
-            <div
-              className="bg-blue-600 h-4 transition-all duration-200"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
+            {stepIndex > simulationSteps.length - 1 && (
+              <button
+                onClick={reset}
+                className="mt-4 px-4 py-2 rounded bg-blue-500 hover:bg-blue-600"
+              >
+                Start New Order
+              </button>
+            )}
+          </>
         )}
       </div>
     </div>
