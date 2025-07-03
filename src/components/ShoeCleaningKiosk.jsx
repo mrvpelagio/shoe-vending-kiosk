@@ -6,11 +6,7 @@ const shoeTypes = [
   { name: "Canvas", image: "/images/canvas.jpg" },
   { name: "Sneakers", image: "/images/sneakers.jpg" },
   { name: "Heels", image: "/images/heels.jpg" },
-  
 ];
-
-const paymentMethods = ["GCash", "Card", "Cash"];
-
 
 const services = [
   { id: 1, name: "Basic Clean", price: "₱150" },
@@ -18,6 +14,8 @@ const services = [
   { id: 3, name: "Clean + Repaint", price: "₱250" },
   { id: 4, name: "Deodorize Only", price: "₱100" },
 ];
+
+const paymentMethods = ["GCash", "Card", "Cash"];
 
 const simulationSteps = [
   "Please insert your shoe into the kiosk...",
@@ -27,188 +25,163 @@ const simulationSteps = [
 ];
 
 export default function ShoeCleaningVendingMachine() {
+  const [step, setStep] = useState(1);
   const [selectedShoe, setSelectedShoe] = useState(null);
   const [selectedService, setSelectedService] = useState(null);
-  const [currentStep, setCurrentStep] = useState(null);
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [currentStepMsg, setCurrentStepMsg] = useState(null);
   const [stepIndex, setStepIndex] = useState(0);
   const [confirmed, setConfirmed] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState(null);
-
-
-
-  const isReady = selectedShoe && selectedService && selectedPayment;
-
+  const [printing, setPrinting] = useState(false);
 
   useEffect(() => {
     if (confirmed && stepIndex < simulationSteps.length) {
       const timeout = setTimeout(() => {
-        setCurrentStep(simulationSteps[stepIndex]);
+        setCurrentStepMsg(simulationSteps[stepIndex]);
         setStepIndex((prev) => prev + 1);
       }, 1500);
       return () => clearTimeout(timeout);
     }
-  }, [stepIndex, confirmed]);
 
-  const startSimulation = () => {
-    setConfirmed(true);
-    setCurrentStep(simulationSteps[0]);
-    setStepIndex(1);
-  };
+    if (confirmed && stepIndex === simulationSteps.length && !printing) {
+      const printTimeout = setTimeout(() => {
+        setPrinting(true);
+        setCurrentStepMsg("Printing receipt...");
+      }, 2000);
+      return () => clearTimeout(printTimeout);
+    }
 
-  const reset = () => {
+    if (printing) {
+      const resetTimeout = setTimeout(() => {
+        resetAll();
+      }, 3000);
+      return () => clearTimeout(resetTimeout);
+    }
+  }, [stepIndex, confirmed, printing]);
+
+  const resetAll = () => {
+    setStep(1);
     setConfirmed(false);
-    setCurrentStep(null);
-    setStepIndex(0);
     setSelectedShoe(null);
     setSelectedService(null);
     setSelectedPayment(null);
+    setCurrentStepMsg(null);
+    setStepIndex(0);
+    setPrinting(false);
   };
 
-
-
-
   return (
-    <div className="bg-gray-900 text-white w-[700px] rounded-xl shadow-2xl overflow-hidden border-4 border-blue-300">
-      <div className="bg-blue-600 p-4 text-center font-bold text-lg">
+    <div className="bg-white text-gray-800 w-[700px] h-[650px] rounded-xl shadow-xl overflow-hidden border-2 border-gray-300 flex flex-col">
+      <div className="bg-blue-100 p-4 text-center font-bold text-lg text-blue-800 border-b border-blue-300">
         Shoe Cleaning Vending Machine
       </div>
 
-      {/* Shoe Type + Service Grid */}
-      <div className="grid grid-cols-2 gap-4 p-4">
-        {/* Shoe Type Selector */}
-        <div>
-          <h2 className="text-md font-semibold mb-2">Select Shoe Type</h2>
-          <div className="space-y-2">
-            {shoeTypes.map((shoe) => (
-              <button
-                key={shoe.name}
-                className={`flex items-center gap-3 w-full py-2 px-3 rounded border ${
-                  selectedShoe === shoe.name
-                    ? "bg-yellow-300 text-black border-yellow-400"
-                    : "bg-gray-800 hover:bg-gray-700 border-gray-600"
-                }`}
-                onClick={() => {
-                  setSelectedShoe(shoe.name);
-                  setConfirmed(false);
-                }}
-              >
-                <img
-                  src={shoe.image}
-                  alt={shoe.name}
-                  className="w-12 h-12 object-contain rounded bg-white"
-                />
-                <span>{shoe.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Service Selector */}
-        <div>
-          <h2 className="text-md font-semibold mb-2">Select Cleaning Service</h2>
-          <div className="space-y-2">
-            {services.map((svc) => (
-              <button
-                key={svc.id}
-                className={`w-full py-2 px-3 rounded text-left font-medium border ${
-                  selectedService?.id === svc.id
-                    ? "bg-yellow-300 text-black border-yellow-400"
-                    : "bg-gray-800 hover:bg-gray-700 border-gray-600"
-                }`}
-                onClick={() => {
-                  setSelectedService(svc);
-                  setConfirmed(false);
-                }}
-              >
-                <div>{svc.name}</div>
-                <div className="text-sm text-gray-300">{svc.price}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Payment Method Selector */}
-      <div className="px-4 pb-2">
-        <h2 className="text-md font-semibold mb-2">Select Payment Method</h2>
-        <div className="flex gap-3 justify-center">
-          {paymentMethods.map((method) => (
-            <button
-              key={method}
-              className={`px-4 py-2 rounded font-medium border ${
-                selectedPayment === method
-                  ? "bg-yellow-300 text-black border-yellow-400"
-                  : "bg-gray-800 hover:bg-gray-700 border-gray-600 text-white"
-              }`}
-              onClick={() => {
-                setSelectedPayment(method);
-                setConfirmed(false);
-              }}
-            >
-              {method}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Summary + Simulation */}
-      <div className="bg-gray-800 p-4 border-t border-gray-700 text-center">
-        {!confirmed ? (
+      <div className="p-6 flex-1 overflow-y-auto">
+        {step === 1 && (
           <>
-            <h2 className="text-lg font-semibold mb-2">Order Summary</h2>
-            {isReady ? (
-              <>
-                <p>
-                  <span className="text-gray-300">Shoe:</span>{" "}
-                  <strong>{selectedShoe}</strong>
-                </p>
-                <p>
-                  <span className="text-gray-300">Service:</span>{" "}
-                  <strong>{selectedService.name}</strong> (
-                  <span className="text-yellow-300">{selectedService.price}</span>)
-                </p>
-                <p>
-                  <span className="text-gray-300">Payment:</span>{" "}
-                  <strong>{selectedPayment || "None"}</strong>
-                </p>
-              </>
-            ) : (
-              <p className="text-gray-400 italic">
-                Please select both a shoe type and service
-              </p>
-            )}
+            <h2 className="text-md font-semibold mb-4">Step 1: Select Shoe Type</h2>
+            <div className="space-y-3">
+              {shoeTypes.map((shoe) => (
+                <button
+                  key={shoe.name}
+                  className={`flex items-center gap-3 w-full py-2 px-3 rounded border ${
+                    selectedShoe === shoe.name
+                      ? "bg-yellow-200 border-yellow-400"
+                      : "bg-white hover:bg-gray-50 border-gray-300"
+                  }`}
+                  onClick={() => {
+                    setSelectedShoe(shoe.name);
+                    setStep(2);
+                  }}
+                >
+                  <img
+                    src={shoe.image}
+                    alt={shoe.name}
+                    className="w-12 h-12 object-contain bg-gray-100 rounded"
+                  />
+                  <span>{shoe.name}</span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
 
+        {step === 2 && (
+          <>
+            <h2 className="text-md font-semibold mb-4">Step 2: Select Cleaning Service</h2>
+            <div className="space-y-3">
+              {services.map((svc) => (
+                <button
+                  key={svc.id}
+                  className={`w-full py-2 px-3 rounded text-left font-medium border ${
+                    selectedService?.id === svc.id
+                      ? "bg-yellow-200 border-yellow-400"
+                      : "bg-white hover:bg-gray-50 border-gray-300"
+                  }`}
+                  onClick={() => {
+                    setSelectedService(svc);
+                    setStep(3);
+                  }}
+                >
+                  <div>{svc.name}</div>
+                  <div className="text-sm text-gray-500">{svc.price}</div>
+                </button>
+              ))}
+            </div>
             <button
-              disabled={!isReady}
-              onClick={startSimulation}
-              className={`mt-4 px-6 py-2 rounded font-bold ${
-                isReady
-                  ? "bg-green-500 hover:bg-green-600 text-white"
-                  : "bg-gray-600 text-gray-300 cursor-not-allowed"
-              }`}
+              onClick={() => setStep(1)}
+              className="mt-6 bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"
             >
-              Start Cleaning
+              Back
             </button>
           </>
-        ) : (
+        )}
+
+        {step === 3 && (
           <>
-            <h2 className="text-lg font-semibold mb-2">Machine Status</h2>
+            <h2 className="text-md font-semibold mb-4">Step 3: Select Payment Method</h2>
+            <div className="flex gap-4 justify-center">
+              {paymentMethods.map((method) => (
+                <button
+                  key={method}
+                  className={`px-4 py-2 rounded font-medium border ${
+                    selectedPayment === method
+                      ? "bg-yellow-200 border-yellow-400"
+                      : "bg-white hover:bg-gray-50 border-gray-300"
+                  }`}
+                  onClick={() => {
+                    setSelectedPayment(method);
+                    setStep(4);
+                    setConfirmed(true);
+                    setCurrentStepMsg(simulationSteps[0]);
+                    setStepIndex(1);
+                  }}
+                >
+                  {method}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setStep(2)}
+              className="mt-6 bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"
+            >
+              Back
+            </button>
+          </>
+        )}
+
+        {step === 4 && (
+          <>
             <p
-              className={`text-yellow-300 text-md ${
-                currentStep.includes("progress") ? "typing-dots" : ""
+              className={`text-blue-700 text-md text-center font-medium ${
+                currentStepMsg?.includes("progress") ? "typing-dots" : ""
               }`}
             >
-              {currentStep}
+              {currentStepMsg}
             </p>
+            <div className="flex justify-center mt-4">
 
-            {stepIndex > simulationSteps.length - 1 && (
-              <button
-                onClick={reset}
-                className="mt-4 px-4 py-2 rounded bg-blue-500 hover:bg-blue-600"
-              >
-                Start New Order
-              </button>
-            )}
+            </div>
           </>
         )}
       </div>
