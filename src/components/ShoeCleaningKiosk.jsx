@@ -7,6 +7,14 @@ const shoeTypes = [
   { name: "Heels", image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=200&h=200&fit=crop&crop=center" },
 ];
 
+const greenTips = [
+  "🌱 Each cleaning saves ~1L of water vs hand washing!",
+  "💨 Our dryers use 30% less power than traditional methods.",
+  "♻️ Our system filters and recycles cleaning agents.",
+  "🚫 Say goodbye to moldy, wet shoes!",
+  "👟 Proper cleaning extends shoe life by 40%!",
+];
+
 const services = [
   { id: 1, name: "Basic Clean", price: 150 },
   { id: 2, name: "Deep Clean", price: 200 },
@@ -77,20 +85,7 @@ export default function ShoeCleaningVendingMachine() {
     uv: null
   });
   const [customPresetStep, setCustomPresetStep] = useState(1);
-
-  const handleShoeSelect = (shoeName) => {
-  setSelectedShoe(shoeName);
-  setStep(2);
-  };
-
-  const greenTips = [
-    "🌱 Each cleaning saves ~1L of water vs hand washing!",
-    "💨 Our dryers use 30% less power than traditional methods.",
-    "♻️ Our system filters and recycles cleaning agents.",
-    "🚫 Say goodbye to moldy, wet shoes!",
-    "👟 Proper cleaning extends shoe life by 40%!",
-  ];
-
+  
   useEffect(() => {
     if (confirmed && stepIndex < simulationSteps.length) {
       const timeout = setTimeout(() => {
