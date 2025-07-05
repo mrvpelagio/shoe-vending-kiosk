@@ -55,6 +55,8 @@ const simulationSteps = [
   "Cleaning complete! ✅",
 ];
 
+
+
 export default function ShoeCleaningVendingMachine() {
   const [step, setStep] = useState(1);
   const [selectedShoe, setSelectedShoe] = useState(null);
@@ -75,6 +77,11 @@ export default function ShoeCleaningVendingMachine() {
     uv: null
   });
   const [customPresetStep, setCustomPresetStep] = useState(1);
+
+  const handleShoeSelect = (shoeName) => {
+  setSelectedShoe(shoeName);
+  setStep(2);
+  };
 
   const greenTips = [
     "🌱 Each cleaning saves ~1L of water vs hand washing!",
