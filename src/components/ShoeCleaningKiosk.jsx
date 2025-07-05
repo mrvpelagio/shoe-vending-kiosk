@@ -85,7 +85,7 @@ export default function ShoeCleaningVendingMachine() {
     uv: null
   });
   const [customPresetStep, setCustomPresetStep] = useState(1);
-  
+
   useEffect(() => {
     if (confirmed && stepIndex < simulationSteps.length) {
       const timeout = setTimeout(() => {
@@ -116,7 +116,7 @@ export default function ShoeCleaningVendingMachine() {
       }, 3000);
       return () => clearTimeout(resetTimeout);
     }
-}, [stepIndex, confirmed, printing, step, greenTips, showTip]);
+}, [stepIndex, confirmed, printing, step, showTip]);
 
   const resetAll = () => {
     setStep(1);
