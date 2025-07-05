@@ -113,7 +113,7 @@ export default function ShoeCleaningVendingMachine() {
     if (printing) {
       const resetTimeout = setTimeout(() => {
         resetAll();
-      }, 3000);
+      }, 7000);
       return () => clearTimeout(resetTimeout);
     }
 }, [stepIndex, confirmed, printing, step, showTip]);
@@ -649,6 +649,59 @@ export default function ShoeCleaningVendingMachine() {
                     <span>Service:</span>
                     <span className="font-medium">{selectedService?.name}</span>
                   </div>
+                  {selectedService?.id === 6 && (
+  <>
+    <div className="flex justify-between">
+      <span>Wash:</span>
+      <span className="font-medium">{customPreset.wash?.time} {customPreset.wash?.price > 0 ? `(+₱${customPreset.wash.price})` : ''}</span>
+    </div>
+    <div className="flex justify-between">
+      <span>Soap:</span>
+      <span className="font-medium">{customPreset.soap?.name} {customPreset.soap?.price > 0 ? `(+₱${customPreset.soap.price})` : ''}</span>
+    </div>
+    <div className="flex justify-between">
+      <span>Rinse:</span>
+      <span className="font-medium">{customPreset.rinse?.times} {customPreset.rinse?.price > 0 ? `(+₱${customPreset.rinse.price})` : ''}</span>
+    </div>
+    <div className="flex justify-between">
+      <span>Dry:</span>
+      <span className="font-medium">{customPreset.dry?.time} {customPreset.dry?.price > 0 ? `(+₱${customPreset.dry.price})` : ''}</span>
+    </div>
+    {customPreset.uv && (
+      <div className="flex justify-between">
+        <span>UV:</span>
+        <span className="font-medium">{customPreset.uv.time} (+₱{customPreset.uv.price})</span>
+      </div>
+    )}
+  </>
+)}
+                      {selectedService?.id === 6 && (
+      <>
+        <div className="flex justify-between">
+          <span>Wash:</span>
+          <span className="font-medium">{customPreset.wash?.time} {customPreset.wash?.price > 0 ? `(+₱${customPreset.wash.price})` : ''}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Soap:</span>
+          <span className="font-medium">{customPreset.soap?.name} {customPreset.soap?.price > 0 ? `(+₱${customPreset.soap.price})` : ''}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Rinse:</span>
+          <span className="font-medium">{customPreset.rinse?.times} {customPreset.rinse?.price > 0 ? `(+₱${customPreset.rinse.price})` : ''}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Dry:</span>
+          <span className="font-medium">{customPreset.dry?.time} {customPreset.dry?.price > 0 ? `(+₱${customPreset.dry.price})` : ''}</span>
+        </div>
+        {customPreset.uv && (
+          <div className="flex justify-between">
+            <span>UV:</span>
+            <span className="font-medium">{customPreset.uv.time} (+₱{customPreset.uv.price})</span>
+          </div>
+        )}
+      </>
+    )}
+
                   {addDeodorizer && (
                     <div className="flex justify-between">
                       <span>Deodorizer:</span>
@@ -661,8 +714,31 @@ export default function ShoeCleaningVendingMachine() {
                   </div>
                   <div className="border-t pt-1 flex justify-between font-bold text-blue-600">
                     <span>Total:</span>
-                    <span>₱{selectedService?.price + (addDeodorizer ? 30 : 0)}</span>
+                    <span>
+                    ₱{
+                      selectedService?.id === 6
+                        ? 150
+                          + (customPreset.wash?.price || 0)
+                          + (customPreset.soap?.price || 0)
+                          + (customPreset.rinse?.price || 0)
+                          + (customPreset.dry?.price || 0)
+                          + (customPreset.uv?.price || 0)
+                          + (addDeodorizer ? 30 : 0)
+                        : selectedService?.price + (addDeodorizer ? 30 : 0)
+                    }
+                    </span>
+
                   </div>
+                   {printing && (
+  <div className="border-t mt-4 pt-4 text-center">
+    <div className="bg-white rounded-lg p-4 mx-auto max-w-md shadow-sm border border-gray-100 space-y-2">
+      <h2 className="text-lg font-semibold text-green-600">
+        Thank you for using our <span className="text-emerald-700">Shoe Cleaning Kiosk</span>!  ✨
+      </h2>
+      <p className="text-sm text-gray-600">We hope to see you again soon.</p>
+    </div>
+  </div>
+)}
                 </div>
               </div>
             </div>
@@ -672,3 +748,4 @@ export default function ShoeCleaningVendingMachine() {
     </div>
   );
 }
+
