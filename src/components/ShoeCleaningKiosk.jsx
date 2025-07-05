@@ -114,7 +114,7 @@ export default function ShoeCleaningVendingMachine() {
       }, 3000);
       return () => clearTimeout(resetTimeout);
     }
-  }, [stepIndex, confirmed, printing, step]);
+}, [stepIndex, confirmed, printing, step, greenTips, showTip]);
 
   const resetAll = () => {
     setStep(1);
